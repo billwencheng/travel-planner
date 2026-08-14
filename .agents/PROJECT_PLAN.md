@@ -22,7 +22,7 @@ This document outlines the phased delivery milestones, task breakdown, and accep
 **Goal:** Implement the multi-agent backbone and the File Message Bus state routing mechanism.
 
 *   **Task 2.1:** Scaffold the Backend API (Cloud Run deployable format).
-*   **Task 2.2:** Scaffold the four core agents (Orchestrator, Querying, Auditor, Reporting) using `gemini-1.5-pro` and `gemini-1.5-flash`.
+*   **Task 2.2:** Scaffold the four core agents (Orchestrator, Querying, Auditor, Reporting) using `gemini-2.5-pro` and `gemini-2.5-flash`.
 *   **Task 2.3:** Implement the **File Message Bus** for stateless handoffs and Firestore Session integration.
 
 **Acceptance Criteria:**

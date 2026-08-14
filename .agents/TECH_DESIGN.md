@@ -7,8 +7,8 @@
     *   **Frontend (A2UI Web App):** A Next.js/React Single Page Application (SPA), deployed via **Firebase Hosting** (or lightweight Cloud Run containers). The frontend acts purely as a presentation layer, dynamically rendering the schema-driven A2UI JSON payloads returned by the Agent Backend.
     *   **Local Development:** Both frontend and backend are emulated locally via `agents-cli serve` alongside Docker Desktop.
 *   **LLM Foundation (2026 Models):** 
-    *   `gemini-1.5-pro`: Orchestrator Agent & Auditor Agent (for complex reasoning and multi-step planning).
-    *   `gemini-1.5-flash`: Querying Agent & Reporting Agent (for fast data retrieval and A2UI UI generation).
+    *   `gemini-2.5-pro`: Orchestrator Agent & Auditor Agent (for complex reasoning and multi-step planning).
+    *   `gemini-2.5-flash`: Querying Agent & Reporting Agent (for fast data retrieval and A2UI UI generation).
 *   **State & Memory Management:** GCP Firestore as the immutable Session Store for interactions and A2UI states. Vertex AI Agent Engine Memory Bank for long-term user preferences.
 
 ## 2. Agent Definitions (DAG Orchestration)

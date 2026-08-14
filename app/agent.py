@@ -14,14 +14,14 @@ from .tools import (
 
 orchestrator = LlmAgent(
     name="orchestrator",
-    model=Gemini(model="gemini-1.5-pro"),
+    model=Gemini(model="gemini-2.5-pro"),
     instruction="""You are the Orchestrator Agent. 
 Analyze the user intent, manage session contextualization, and format the output into a search request.""",
 )
 
 querying = LlmAgent(
     name="querying",
-    model=Gemini(model="gemini-1.5-flash"),
+    model=Gemini(model="gemini-2.5-flash"),
     instruction="""You are the Querying Agent (Strict data retriever).
 Translate the Orchestrator's requests into search queries. 
 Use the search_public_travel_tool to fetch real-world flights and hotels.
@@ -33,7 +33,7 @@ AuditorSchema = create_model("AuditorSchema", isAligned=(bool, ...), approvedDat
 
 auditor = LlmAgent(
     name="auditor",
-    model=Gemini(model="gemini-1.5-pro"),
+    model=Gemini(model="gemini-2.5-pro"),
     instruction="""You are the Auditor Agent.
 Inspect the raw public search results in searchDataURI using validate_preferences_tool.
 Ensure they align with the personal traveler's stated preferences.
@@ -44,7 +44,7 @@ If aligned, pass approvedDataURI to Reporting. If not, trigger a retry.""",
 
 reporting = LlmAgent(
     name="reporting",
-    model=Gemini(model="gemini-1.5-flash"),
+    model=Gemini(model="gemini-2.5-flash"),
     instruction="""You are the Reporting Agent (UI synthesizer).
 Generate Agent-to-User Interface (A2UI) declarative output formatting using generate_vibe_diff_tool on the approvedDataURI.""",
     tools=[generate_vibe_diff_tool]

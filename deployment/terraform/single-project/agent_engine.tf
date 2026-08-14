@@ -1,5 +1,5 @@
 locals {
-  dummy_source_b64 = trimspace(file("${path.module}/../shared/dummy_source.b64"))
+  dummy_source_b64 = replace(file("${path.module}/../shared/dummy_source.b64"), "\n", "")
 }
 
 resource "google_vertex_ai_reasoning_engine" "agent_engine" {

@@ -1,0 +1,9 @@
+publishers/google/models/multimodalembedding
+publishers/google/models/textembedding-gecko
+publishers/google/models/imagetext
+publishers/google/models/text-multilingual-embedding-002
+publishers/google/models/text-embedding-005
+publishers/google/models/gemma4
+publishers/google/models/image-segmentation-001
+publishers/google/models/gemma3
+publishers/google/models/gemini-2.5-flash
