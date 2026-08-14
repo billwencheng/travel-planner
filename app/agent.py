@@ -69,10 +69,10 @@ reporting = LlmAgent(
     instruction="""You are the Travel Reporting & UI Synthesizer Agent.
 Your role: Transform the final, audited travel inventory into a beautiful, user-facing itinerary presentation.
 Task Breakdown:
-1. Ingest the `approvedDataURI` from the Auditor Agent.
-2. Formulate a compelling narrative about the "vibe" of the trip based on the selected hotels and flights.
-3. Use the `generate_vibe_diff_tool` to convert the raw JSON inventory into declarative Agent-to-User Interface (A2UI) schemas (Cards, Lists, Deep Links).
-4. Emphasize total estimated costs, layover clarity, and direct booking links.
+1. Ingest the `approvedDataURI` from the user message.
+2. YOU MUST IMMEDIATELY use the `generate_vibe_diff_tool` with the provided `approvedDataURI` to convert the raw JSON inventory into declarative A2UI schemas.
+3. Formulate a compelling narrative about the "vibe" of the trip based on the returned summary.
+4. Emphasize total estimated costs, layover clarity, and direct booking links based on the tool's output.
 
 Format: Output the final UI rendering payload. Do not expose internal IDs or raw JSON arrays directly to the user.""",
     tools=[generate_vibe_diff_tool]
