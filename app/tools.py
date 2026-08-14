@@ -12,9 +12,25 @@ class ValidationReport(BaseModel):
     isAligned: bool
     approvedDataURI: str
 
+class FlightDetail(BaseModel):
+    airline: str
+    price: float
+    departure: str
+    arrival: str
+    layovers: int
+    deepLink: str
+
+class HotelDetail(BaseModel):
+    name: str
+    price_per_night: float
+    stars: int
+    deepLink: str
+
 class VibeDiff(BaseModel):
     plainTextSummary: str
     estimatedCost: float
+    flights: list[FlightDetail]
+    hotels: list[HotelDetail]
     deepLinks: list[str]
 
 async def search_public_travel_tool(origin: str, destination: str, departure_date: str, return_date: str, tool_context: ToolContext) -> dict:
@@ -112,6 +128,8 @@ async def generate_vibe_diff_tool(approvedDataURI: str, tool_context: ToolContex
     cost = 0.0
     summary_sentences = []
     deep_links = []
+    flight_details = []
+    hotel_details = []
     
     if part and getattr(part, 'text', None):
         try:
@@ -119,23 +137,43 @@ async def generate_vibe_diff_tool(approvedDataURI: str, tool_context: ToolContex
             flights = data.get('flights', [])
             hotels = data.get('hotels', [])
             
-            if flights:
-                best_flight = flights[0]
-                flight_price = float(best_flight.get("price", 0))
-                cost += flight_price
-                airline = best_flight.get("airline", "the airline")
-                summary_sentences.append(f"You will be flying elegantly with {airline}.")
-                origin = best_flight.get("departure", "")
-                destination = best_flight.get("arrival", "")
-                deep_links.append(f"https://flights.google.com/search?q={origin}+to+{destination}")
+            for index, flight in enumerate(flights):
+                flight_price = float(flight.get("price", 0))
+                if index == 0:
+                    cost += flight_price
+                airline = flight.get("airline", "the airline")
+                origin = flight.get("departure", "")
+                destination = flight.get("arrival", "")
+                link = f"https://flights.google.com/search?q={origin}+to+{destination}"
+                
+                flight_details.append(FlightDetail(
+                    airline=airline,
+                    price=flight_price,
+                    departure=origin,
+                    arrival=destination,
+                    layovers=int(flight.get("layovers", 0)),
+                    deepLink=link
+                ))
+                if index == 0:
+                    summary_sentences.append(f"You will be flying elegantly with {airline}.")
+                    deep_links.append(link)
             
-            if hotels:
-                best_hotel = hotels[0]
-                hotel_price = float(best_hotel.get("price_per_night", 0))
-                cost += (hotel_price * 5) # Assuming ~5 nights for base calculation
-                hotel_name = best_hotel.get("name", "a highly-rated hotel")
-                summary_sentences.append(f"Your stay at {hotel_name} guarantees relaxation.")
-                deep_links.append(f"https://booking.com/search?q={hotel_name.replace(' ', '+')}")
+            for index, hotel in enumerate(hotels):
+                hotel_price = float(hotel.get("price_per_night", 0))
+                if index == 0:
+                    cost += (hotel_price * 5) # Assuming ~5 nights for base calculation
+                hotel_name = hotel.get("name", "a highly-rated hotel")
+                link = f"https://booking.com/search?q={hotel_name.replace(' ', '+')}"
+                
+                hotel_details.append(HotelDetail(
+                    name=hotel_name,
+                    price_per_night=hotel_price,
+                    stars=int(hotel.get("stars", 4)),
+                    deepLink=link
+                ))
+                if index == 0:
+                    summary_sentences.append(f"Your stay at {hotel_name} guarantees relaxation.")
+                    deep_links.append(link)
                 
         except Exception:
             pass
@@ -148,6 +186,8 @@ async def generate_vibe_diff_tool(approvedDataURI: str, tool_context: ToolContex
     return VibeDiff(
         plainTextSummary=" ".join(summary_sentences),
         estimatedCost=cost,
+        flights=flight_details,
+        hotels=hotel_details,
         deepLinks=deep_links
     )
 

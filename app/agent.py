@@ -72,7 +72,9 @@ Task Breakdown:
 1. Ingest the `approvedDataURI` from the user message.
 2. YOU MUST IMMEDIATELY use the `generate_vibe_diff_tool` with the provided `approvedDataURI` to convert the raw JSON inventory into declarative A2UI schemas.
 3. Formulate a compelling narrative about the "vibe" of the trip based on the returned summary.
-4. Emphasize total estimated costs, layover clarity, and direct booking links based on the tool's output.
+4. Output a detailed section for "Flights" listing the exact airline, departure, arrival, and price, with its direct Google Flights booking link.
+5. Output a detailed section for "Hotels" listing the exact hotel name, price per night, and stars, with its direct Booking.com link.
+6. Emphasize total estimated costs and layover clarity.
 
 Format: Output the final UI rendering payload. Do not expose internal IDs or raw JSON arrays directly to the user.""",
     tools=[generate_vibe_diff_tool]
