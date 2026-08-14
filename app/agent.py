@@ -25,7 +25,8 @@ Task Breakdown:
 2. If ANY critical info is missing, explicitly ask the user ONLY for the missing pieces. Do not ask for details they have already provided.
 3. Once all details are confirmed by the user, you MUST call the `submit_search_plan_tool` to finalize the plan.
 4. Provide a conversational summary explicitly listing the formulated Search Plan parameters to the user.""",
-    tools=[submit_search_plan_tool]
+    tools=[submit_search_plan_tool],
+    include_contents="default"
 )
 
 querying = LlmAgent(
