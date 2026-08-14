@@ -52,54 +52,26 @@ async def search_public_travel_tool(origin: str, destination: str, departure_dat
     
     query = f"flights from {origin} to {destination} departing {departure_date} returning {return_date} and hotels in {destination}"
     
-    prompt = f"""Search the public internet for flights and hotels matching the following travel plan:
-Origin: {origin}
-Destination: {destination}
-Departure Date: {departure_date}
-Return Date: {return_date}
-
-Format your response strictly as a JSON object with the following schema:
-{{
-  "flights": [
-    {{
-      "airline": "string",
-      "price": "number",
-      "departure": "string",
-      "arrival": "string",
-      "layovers": "integer"
-    }}
-  ],
-  "hotels": [
-    {{
-      "name": "string",
-      "price_per_night": "number",
-      "stars": "integer",
-      "amenities": ["string"]
-    }}
-  ]
-}}
-Do not hallucinate any info! Rely strictly on search data.
-"""
-
-    response = client.models.generate_content(
-        model='gemini-2.5-flash',
-        contents=prompt,
-        config=types.GenerateContentConfig(
-            tools=[{"google_search": {}}],
-        )
-    )
-
-    try:
-        raw_text = response.text.strip()
-        if raw_text.startswith("```json"):
-            raw_text = raw_text[7:]
-        elif raw_text.startswith("```"):
-            raw_text = raw_text[3:]
-        if raw_text.endswith("```"):
-            raw_text = raw_text[:-3]
-        search_data = json.loads(raw_text.strip())
-    except Exception:
-        search_data = {"flights": [], "hotels": []}
+    # Development Mock: Return deterministic data instead of calling LLM
+    search_data = {
+        "flights": [
+            {
+                "airline": "Delta Airlines",
+                "price": 295.0,
+                "departure": origin,
+                "arrival": destination,
+                "layovers": 0
+            }
+        ],
+        "hotels": [
+            {
+                "name": "Grand Hyatt",
+                "price_per_night": 210.0,
+                "stars": 4,
+                "amenities": ["WiFi", "Pool"]
+            }
+        ]
+    }
 
     query_hash = hashlib.md5(query.encode('utf-8')).hexdigest()
     filename = f"search_results_{query_hash}.json"
