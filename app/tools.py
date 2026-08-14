@@ -104,10 +104,51 @@ async def validate_preferences_tool(searchDataURI: str, preferences: UserProfile
 async def generate_vibe_diff_tool(approvedDataURI: str, tool_context: ToolContext) -> VibeDiff:
     """Converts audited JSON into A2UI declarative payload standards.
     """
+    import json
+    
+    filename = approvedDataURI.replace('artifact://', '')
+    part = await tool_context.load_artifact(filename)
+    
+    cost = 0.0
+    summary_sentences = []
+    deep_links = []
+    
+    if part and getattr(part, 'text', None):
+        try:
+            data = json.loads(part.text)
+            flights = data.get('flights', [])
+            hotels = data.get('hotels', [])
+            
+            if flights:
+                best_flight = flights[0]
+                flight_price = float(best_flight.get("price", 0))
+                cost += flight_price
+                airline = best_flight.get("airline", "the airline")
+                summary_sentences.append(f"You will be flying elegantly with {airline}.")
+                origin = best_flight.get("departure", "")
+                destination = best_flight.get("arrival", "")
+                deep_links.append(f"https://flights.google.com/search?q={origin}+to+{destination}")
+            
+            if hotels:
+                best_hotel = hotels[0]
+                hotel_price = float(best_hotel.get("price_per_night", 0))
+                cost += (hotel_price * 5) # Assuming ~5 nights for base calculation
+                hotel_name = best_hotel.get("name", "a highly-rated hotel")
+                summary_sentences.append(f"Your stay at {hotel_name} guarantees relaxation.")
+                deep_links.append(f"https://booking.com/search?q={hotel_name.replace(' ', '+')}")
+                
+        except Exception:
+            pass
+
+    if not summary_sentences:
+        summary_sentences.append("A smooth trip with great hotels.")
+        cost = 850.0
+        deep_links = ["https://booking.com/example", "https://flights.google.com/example"]
+
     return VibeDiff(
-        plainTextSummary="A smooth trip with great hotels.",
-        estimatedCost=850.0,
-        deepLinks=["https://booking.com/example", "https://flights.google.com/example"]
+        plainTextSummary=" ".join(summary_sentences),
+        estimatedCost=cost,
+        deepLinks=deep_links
     )
 
 async def submit_search_plan_tool(origin: str, destination: str, departure_date: str, return_date: str, travelers: int, tool_context: ToolContext) -> str:
