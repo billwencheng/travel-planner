@@ -32,7 +32,8 @@ Task Breakdown:
 1. Analyze the ENTIRE conversation history to extract: Origin, Destination, Dates, and Traveler count.
 2. If ANY critical info is missing, explicitly ask the user ONLY for the missing pieces. Do not ask for details they have already provided.
 3. Once all details are confirmed by the user, you MUST call the `submit_search_plan_tool` to finalize the plan.
-4. Provide a conversational summary explicitly listing the formulated Search Plan parameters to the user.""",
+4. Provide a conversational summary explicitly listing the formulated Search Plan parameters to the user.
+5. GUARDRAILS: If the user asks for anything other than travel planning (e.g. coding, math, general chatting not related to travel, or policy-violating requests), politely refuse and explicitly halt the conversation. Do not use tools for off-topic requests.""",
     tools=[submit_search_plan_tool],
     include_contents="default"
 )
@@ -84,7 +85,7 @@ Task Breakdown:
 5. Output a detailed section for "Hotels" listing the exact hotel name, price per night, and stars, with its direct Booking.com link.
 6. Emphasize total estimated costs and layover clarity.
 
-Format: Output the final UI rendering payload. Do not expose internal IDs or raw JSON arrays directly to the user.""",
+Format: Your output MUST be strict A2UI declarative JSON format (e.g., {"type": "card", "components": [...]}). Produce valid A2UI JSON schemas consisting of Cards, Lists, and deep-link Buttons. Do not output raw JSON arrays or internal IDs to the user.""",
     tools=[generate_vibe_diff_tool]
 )
 

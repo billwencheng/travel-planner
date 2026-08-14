@@ -66,7 +66,7 @@ async def search_public_travel_tool(origin: str, destination: str, departure_dat
         "hotels": [
             {
                 "name": "Grand Hyatt",
-                "price_per_night": 210.0,
+                "price_per_night": 100.0,
                 "stars": 4,
                 "amenities": ["WiFi", "Pool"]
             }
@@ -87,7 +87,41 @@ async def search_public_travel_tool(origin: str, destination: str, departure_dat
 async def validate_preferences_tool(searchDataURI: str, preferences: UserProfile, tool_context: ToolContext) -> ValidationReport:
     """Inspects the raw public search results to ensure they align with the personal traveler's stated preferences.
     """
-    return ValidationReport(isAligned=True, approvedDataURI=searchDataURI)
+    import json
+    
+    filename = searchDataURI.replace('artifact://', '')
+    part = await tool_context.load_artifact(filename)
+    
+    is_aligned = True
+    if part and getattr(part, 'text', None):
+        try:
+            data = json.loads(part.text)
+            flights = data.get('flights', [])
+            hotels = data.get('hotels', [])
+
+            cost = 0.0
+            
+            for index, flight in enumerate(flights):
+                if index == 0:
+                    cost += float(flight.get("price", 0))
+                if int(flight.get("layovers", 0)) > preferences.layover_limits:
+                    is_aligned = False
+
+            for index, hotel in enumerate(hotels):
+                if index == 0:
+                    cost += float(hotel.get("price_per_night", 0)) * 5  # Assume 5 nights based on generate_vibe_diff_tool
+                if int(hotel.get("stars", 0)) < preferences.preferred_hotel_stars:
+                    is_aligned = False
+                    
+            if cost > preferences.budget:
+                is_aligned = False
+
+        except Exception:
+            is_aligned = False
+    else:
+        is_aligned = False
+
+    return ValidationReport(isAligned=is_aligned, approvedDataURI=searchDataURI if is_aligned else "")
 
 async def generate_vibe_diff_tool(approvedDataURI: str, tool_context: ToolContext) -> VibeDiff:
     """Converts audited JSON into A2UI declarative payload standards.

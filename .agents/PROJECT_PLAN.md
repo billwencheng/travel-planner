@@ -54,9 +54,9 @@ This document outlines the phased delivery milestones, task breakdown, and accep
 *   **Task 4.3:** Implement the Reporting Agent and `generate_vibe_diff_tool` to convert audited JSON into A2UI declarative payload standards.
 
 **Acceptance Criteria:**
-- [ ] Auditor Agent correctly rejects itineraries that violate budget or layover preferences, initiating a retry.
-- [ ] Reporting Agent produces valid A2UI JSON schemas consisting of Cards, Lists, and deep-link Buttons.
-- [ ] "Vibe Diff" plain-text summaries are generated accurately based on finalized options.
+- [x] Auditor Agent correctly rejects itineraries that violate budget or layover preferences, initiating a retry.
+- [x] Reporting Agent produces valid A2UI JSON schemas consisting of Cards, Lists, and deep-link Buttons.
+- [x] "Vibe Diff" plain-text summaries are generated accurately based on finalized options.
 
 ---
 
