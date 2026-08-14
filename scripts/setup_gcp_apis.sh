@@ -20,4 +20,7 @@ gcloud services enable \
     iam.googleapis.com \
     --project="$GOOGLE_CLOUD_PROJECT"
 
-echo "APIs enabled successfully!"
+echo "Creating default Firestore database..."
+gcloud firestore databases create --location="asia-southeast1" --project="$GOOGLE_CLOUD_PROJECT" || echo "Firestore database (default) may already exist, skipping."
+
+echo "APIs and Database setup successfully!"

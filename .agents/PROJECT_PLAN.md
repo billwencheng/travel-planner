@@ -9,11 +9,11 @@ This document outlines the phased delivery milestones, task breakdown, and accep
 
 *   **Task 1.1:** Setup Terraform configurations for GCP (Cloud Run, Firestore, Vertex AI Agent Engine, Secret Manager).
 *   **Task 1.2:** Initialize GitHub/Cloud Build CI/CD pipelines with OpenTelemetry instrumentation capabilities.
-*   **Task 1.3:** Configure local development environment (`agents-cli serve`, Firebase Emulators, `.env.local`).
+*   **Task 1.3:** Configure local development environment (`agents-cli serve`, `.env.local`) to connect directly to GCP resources.
 
 **Acceptance Criteria:**
 - [x] Infrastructure configuration scaffolds correctly (verified via static review).
-- [x] Local environment files configured properly for the Agent Engine and Firestore Emulator.
+- [x] Local environment files configured properly for the Agent Engine and GCP Firestore.
 - [x] OpenTelemetry CI integration and traces configured correctly.
 
 ---
@@ -22,7 +22,7 @@ This document outlines the phased delivery milestones, task breakdown, and accep
 **Goal:** Implement the multi-agent backbone and the File Message Bus state routing mechanism.
 
 *   **Task 2.1:** Scaffold the Backend API (Cloud Run deployable format).
-*   **Task 2.2:** Scaffold the four core agents (Orchestrator, Querying, Auditor, Reporting) using `gemini-3.1-pro` and `gemini-3.6-flash`.
+*   **Task 2.2:** Scaffold the four core agents (Orchestrator, Querying, Auditor, Reporting) using `gemini-1.5-pro` and `gemini-1.5-flash`.
 *   **Task 2.3:** Implement the **File Message Bus** for stateless handoffs and Firestore Session integration.
 
 **Acceptance Criteria:**
