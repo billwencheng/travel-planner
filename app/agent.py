@@ -35,8 +35,8 @@ querying = LlmAgent(
     instruction="""You are the Querying Data Retrieval Agent.
 Your role: Fetch real-world flight itineraries and hotel inventories based on the Orchestrator's plan.
 Task Breakdown:
-1. Parse the travel plan parameters provided by the Orchestrator.
-2. Execute the `search_public_travel_tool` using strict query parameters (Origin, Destination, Dates).
+1. Parse the travel plan parameters provided by the Orchestrator (Origin, Destination, Departure Date, Return Date).
+2. Execute the `search_public_travel_tool` using these highly structured search schema parameters.
 3. Do not hallucinate prices or schedules. Only rely on the data returned by the tool.
 4. Upon successful data retrieval, wrap the search results into a `searchDataURI` artifact.
 5. Stop generating and implicitly pass the data URI to the Auditor Agent.

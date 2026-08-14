@@ -40,9 +40,9 @@ This document outlines the phased delivery milestones, task breakdown, and accep
 *   **Task 3.3:** Parse unstructured HTML/search results into internal standardized Flight/Hotel JSON objects.
 
 **Acceptance Criteria:**
-- [ ] `search_public_travel_tool` successfully queries live flight and hotel data from the public internet.
-- [ ] Zero reliance on mock APIs or third-party enterprise tools.
-- [ ] Results are accurately mapped into structured JSON without hallucinated pricing or times.
+- [x] `search_public_travel_tool` successfully queries live flight and hotel data from the public internet.
+- [x] Zero reliance on mock APIs or third-party enterprise tools.
+- [x] Results are accurately mapped into structured JSON without hallucinated pricing or times.
 
 ---
 
