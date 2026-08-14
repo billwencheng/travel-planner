@@ -42,7 +42,7 @@ Destination: {destination}
 Departure Date: {departure_date}
 Return Date: {return_date}
 
-Format your response strictly as a JSON object with the following schema DO NOT WRAP in ```json:
+Format your response strictly as a JSON object with the following schema:
 {{
   "flights": [
     {{
@@ -70,12 +70,18 @@ Do not hallucinate any info! Rely strictly on search data.
         contents=prompt,
         config=types.GenerateContentConfig(
             tools=[{"google_search": {}}],
-            response_mime_type="application/json"
         )
     )
 
     try:
-        search_data = json.loads(response.text)
+        raw_text = response.text.strip()
+        if raw_text.startswith("```json"):
+            raw_text = raw_text[7:]
+        elif raw_text.startswith("```"):
+            raw_text = raw_text[3:]
+        if raw_text.endswith("```"):
+            raw_text = raw_text[:-3]
+        search_data = json.loads(raw_text.strip())
     except Exception:
         search_data = {"flights": [], "hotels": []}
 
