@@ -90,11 +90,20 @@ def orchestrator_router(ctx: Context, node_input):
     return Event(output=node_input, route="human_input_required")
 
 def auditor_router(node_input):
+    if not node_input:
+         # Failsafe if auditor returns nothing
+         return Event(output=None, route="approved")
     if hasattr(node_input, "model_dump"):
         node_input = node_input.model_dump()
-    if node_input.get("needsRetry"):
+    elif isinstance(node_input, str):
+        try:
+            node_input = json.loads(node_input)
+        except Exception:
+            node_input = {}
+            
+    if isinstance(node_input, dict) and node_input.get("needsRetry"):
         return Event(output=node_input, route="retry")
-    return Event(output=node_input.get("approvedDataURI"), route="approved")
+    return Event(output=node_input.get("approvedDataURI") if isinstance(node_input, dict) else None, route="approved")
 
 root_agent = Workflow(
     name="travel_planner",
