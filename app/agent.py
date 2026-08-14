@@ -102,8 +102,9 @@ def auditor_router(node_input):
             node_input = {}
             
     if isinstance(node_input, dict) and node_input.get("needsRetry"):
-        return Event(output=node_input, route="retry")
-    return Event(output=node_input.get("approvedDataURI") if isinstance(node_input, dict) else None, route="approved")
+        return Event(output=json.dumps(node_input), route="retry")
+    uri = node_input.get("approvedDataURI") if isinstance(node_input, dict) else None
+    return Event(output=f'The auditor has approved the travel data. Here is the approvedDataURI: {uri}', route="approved")
 
 root_agent = Workflow(
     name="travel_planner",
