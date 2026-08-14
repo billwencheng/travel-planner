@@ -82,7 +82,7 @@ def orchestrator_router(ctx: Context, node_input):
     """Routes execution based on whether the Orchestrator gathered all info."""
     if "search_plan" in ctx.state:
         plan = ctx.state["search_plan"]
-        del ctx.state["search_plan"]
+        ctx.actions.state_delta["search_plan"] = None
         return Event(output=json.dumps(plan), route="ready")
     
     # If not ready, we route to '__DEFAULT__' which won't match any edge, 
