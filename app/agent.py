@@ -15,11 +15,19 @@ from .tools import (
     UserProfile
 )
 
+import datetime
+
+current_date = datetime.datetime.now().strftime('%Y-%m-%d')
+
 orchestrator = LlmAgent(
     name="orchestrator",
     model=Gemini(model="gemini-2.5-pro"),
-    instruction="""You are the Orchestrator Travel Concierge Agent.
+    instruction=f"""You are the Orchestrator Travel Concierge Agent.
 Your role: Act as the primary interface for the user's travel planning needs.
+
+CRITICAL DATE CONTEXT: Today's date is {current_date}. 
+If a user provides a partial date like "08/21", resolve it to the correct year based on today's date {current_date}. All final travel dates MUST be strictly in the future.
+
 Task Breakdown:
 1. Analyze the ENTIRE conversation history to extract: Origin, Destination, Dates, and Traveler count.
 2. If ANY critical info is missing, explicitly ask the user ONLY for the missing pieces. Do not ask for details they have already provided.
