@@ -26,9 +26,9 @@ This document outlines the phased delivery milestones, task breakdown, and accep
 *   **Task 2.3:** Implement the **File Message Bus** for stateless handoffs and Firestore Session integration.
 
 **Acceptance Criteria:**
-- [ ] Orchestrator Agent can successfully receive a dummy user prompt and hand it off to the Querying Agent.
-- [ ] State handoffs pass file URI pointers (File Message Bus) rather than inflating token context.
-- [ ] Session history successfully persists and loads from Firestore.
+- [x] Orchestrator Agent can successfully receive a dummy user prompt and hand it off to the Querying Agent.
+- [x] State handoffs pass file URI pointers (File Message Bus) rather than inflating token context.
+- [x] Session history successfully persists and loads from Firestore.
 
 ---
 
