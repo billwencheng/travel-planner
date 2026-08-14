@@ -42,3 +42,14 @@ async def generate_vibe_diff_tool(approvedDataURI: str, tool_context: ToolContex
         estimatedCost=850.0,
         deepLinks=["https://booking.com/example", "https://flights.google.com/example"]
     )
+
+async def submit_search_plan_tool(origin: str, destination: str, departure_date: str, return_date: str, travelers: int, tool_context: ToolContext) -> str:
+    """Invokes the search pipeline. CALL THIS TOOL ONLY WHEN the user has confirmed all details (Origin, Destination, Dates, Travelers)."""
+    param = {
+        "Origin": origin,
+        "Destination": destination,
+        "Dates": f"{departure_date} to {return_date}",
+        "Travelers": travelers
+    }
+    tool_context.state["search_plan"] = param
+    return "SUCCESS: Search plan submitted! Tell the user you are starting the search."
