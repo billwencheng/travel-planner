@@ -209,3 +209,4 @@ tools/a2a-inspector/
 credentials*.json
 
 screenshots/
+node_modules
