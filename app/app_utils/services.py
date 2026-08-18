@@ -40,9 +40,17 @@ _AGENT_DIR = os.path.dirname(
 def get_session_service():
     """Process-wide session service shared across every serving surface."""
     if uri := os.environ.get("SESSION_SERVICE_URI"):
-        return create_session_service_from_options(
-            base_dir=_AGENT_DIR, session_service_uri=uri
-        )
+        if not uri.startswith("shared://"):
+            return create_session_service_from_options(
+                base_dir=_AGENT_DIR, session_service_uri=uri
+            )
+    if os.environ.get("USE_IN_MEMORY_SESSION", "").lower() in (
+        "true",
+        "1",
+    ) or os.environ.get("INTEGRATION_TEST"):
+        from google.adk.sessions.in_memory_session_service import InMemorySessionService
+
+        return InMemorySessionService()
     if agent_engine_id := os.environ.get("GOOGLE_CLOUD_AGENT_ENGINE_ID"):
         from google.adk.sessions.vertex_ai_session_service import VertexAiSessionService
 
@@ -54,9 +62,10 @@ def get_session_service():
             or os.environ.get("GOOGLE_CLOUD_LOCATION"),
             agent_engine_id=agent_engine_id,
         )
-    
-    from google.adk.integrations.firestore.firestore_session_service import FirestoreSessionService
-    return FirestoreSessionService()
+
+    from google.adk.sessions.in_memory_session_service import InMemorySessionService
+
+    return InMemorySessionService()
 
 
 @functools.cache

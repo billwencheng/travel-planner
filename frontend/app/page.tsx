@@ -198,8 +198,20 @@ export default function Home() {
               }
 
               let textPart = "";
+              // Extract text from agent message part
+              if (data.result?.status?.message?.role === 'agent' && data.result?.status?.message?.parts) {
+                for (const part of data.result.status.message.parts) {
+                  if (part.kind === 'text' && part.text && !part.metadata?.adk_type) {
+                    textPart = part.text;
+                  }
+                }
+              }
+              // Also check artifact if available
               if (data.result?.artifact?.parts) {
-                textPart = data.result.artifact.parts.find((p: any) => p.kind === 'text')?.text || "";
+                const artText = data.result.artifact.parts.find((p: any) => p.kind === 'text')?.text;
+                if (artText) {
+                  textPart = artText;
+                }
               }
               
               if (textPart) {
@@ -207,7 +219,10 @@ export default function Home() {
                 fullText = textPart;
                 
                 let rawJson = fullText.trim();
-                if (rawJson.startsWith('```json')) {
+                const jsonMatch = rawJson.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+                if (jsonMatch) {
+                   rawJson = jsonMatch[1].trim();
+                } else if (rawJson.startsWith('```json')) {
                    rawJson = rawJson.replace(/^```json\n?/, '').replace(/```$/, '').trim();
                 }
 

@@ -20,9 +20,14 @@ import google.auth
 from a2a.server.tasks import InMemoryTaskStore
 from dotenv import load_dotenv
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from google.adk.cli.fast_api import get_fast_api_app
 from google.adk.runners import Runner
 from google.cloud import logging as google_cloud_logging
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+from starlette.responses import Response
 
 from app.app_utils import services
 from app.app_utils.a2a import attach_a2a_routes
@@ -54,13 +59,24 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     )
     app.state.runner = runner
     app.state.agent_app_name = adk_app.name
-    await attach_a2a_routes(
-        app,
-        agent=root_agent,
-        runner=runner,
-        task_store=InMemoryTaskStore(),
-        rpc_path=f"/a2a/{adk_app.name}",
-    )
+    for path in [
+        f"/a2a/{adk_app.name}",
+        f"/a2a/{adk_app.name}/",
+        f"/api/a2a/{adk_app.name}",
+        f"/api/a2a/{adk_app.name}/",
+    ]:
+        await attach_a2a_routes(
+            app,
+            agent=root_agent,
+            runner=runner,
+            task_store=InMemoryTaskStore(),
+            rpc_path=path,
+        )
+    # Ensure static mount is at the end of routes so API routes match first
+    static_mounts = [r for r in app.routes if getattr(r, "name", None) == "frontend"]
+    for sm in static_mounts:
+        app.routes.remove(sm)
+        app.routes.append(sm)
     yield
 
 
@@ -76,10 +92,6 @@ app: FastAPI = get_fast_api_app(
 app.title = "travel-planner"
 app.description = "API for interacting with the Agent travel-planner"
 
-from fastapi.middleware.cors import CORSMiddleware
-from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.requests import Request
-from starlette.responses import Response
 
 class NoBufferMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
@@ -89,6 +101,7 @@ class NoBufferMiddleware(BaseHTTPMiddleware):
         response.headers["Connection"] = "keep-alive"
         return response
 
+
 app.add_middleware(NoBufferMiddleware)
 app.add_middleware(
     CORSMiddleware,
@@ -96,6 +109,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 @app.post("/feedback")
 def collect_feedback(feedback: Feedback) -> dict[str, str]:
@@ -111,15 +125,15 @@ def collect_feedback(feedback: Feedback) -> dict[str, str]:
     return {"status": "success"}
 
 
+frontend_dir = os.path.join(
+    os.path.dirname(os.path.dirname(__file__)), "frontend", "out"
+)
+if os.path.exists(frontend_dir):
+    app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")
+
+
 # Main execution
 if __name__ == "__main__":
     import uvicorn
 
     uvicorn.run(app, host="0.0.0.0", port=8000)
-
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
-import os
-frontend_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend", "out")
-if os.path.exists(frontend_dir):
-    app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")

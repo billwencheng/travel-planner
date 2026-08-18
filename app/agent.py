@@ -1,21 +1,22 @@
+import datetime
 import json
+
 from google.adk.agents import LlmAgent
 from google.adk.agents.context import Context
-from google.adk.workflow import Workflow
-from google.adk.events.event import Event
 from google.adk.apps import App
+from google.adk.events.event import Event
 from google.adk.models import Gemini
-from pydantic import BaseModel, create_model
+from google.adk.workflow import Workflow
+from pydantic import create_model
+
 from .tools import (
-    search_public_travel_tool,
-    validate_preferences_tool,
     generate_vibe_diff_tool,
-    submit_search_plan_tool
+    search_public_travel_tool,
+    submit_search_plan_tool,
+    validate_preferences_tool,
 )
 
-import datetime
-
-current_date = datetime.datetime.now().strftime('%Y-%m-%d')
+current_date = datetime.datetime.now().strftime("%Y-%m-%d")
 
 orchestrator = LlmAgent(
     name="orchestrator",
@@ -23,7 +24,7 @@ orchestrator = LlmAgent(
     instruction=f"""You are the Orchestrator Travel Concierge Agent.
 Your role: Act as the primary interface for the user's travel planning needs.
 
-CRITICAL DATE CONTEXT: Today's date is {current_date}. 
+CRITICAL DATE CONTEXT: Today's date is {current_date}.
 If a user provides a partial date like "08/21", resolve it to the correct year based on today's date {current_date}. All final travel dates MUST be strictly in the future.
 
 Task Breakdown:
@@ -33,7 +34,7 @@ Task Breakdown:
 4. Provide a conversational summary explicitly listing the formulated Search Plan parameters to the user.
 5. GUARDRAILS: If the user asks for anything other than travel planning (e.g. coding, math, general chatting not related to travel, or policy-violating requests), politely refuse and explicitly halt the conversation. Do not use tools for off-topic requests.""",
     tools=[submit_search_plan_tool],
-    include_contents="default"
+    include_contents="default",
 )
 
 querying = LlmAgent(
@@ -49,10 +50,15 @@ Task Breakdown:
 5. Stop generating and implicitly pass the data URI to the Auditor Agent.
 
 Format: Produce a plain text summary showing the queried locations and the searchDataURI. Do NOT output Python code, do NOT use `print()` or code blocks. Speak natively in English.""",
-    tools=[search_public_travel_tool]
+    tools=[search_public_travel_tool],
 )
 
-AuditorSchema = create_model("AuditorSchema", isAligned=(bool, ...), approvedDataURI=(str, ...), needsRetry=(bool, ...))
+AuditorSchema = create_model(
+    "AuditorSchema",
+    isAligned=(bool, ...),
+    approvedDataURI=(str, ...),
+    needsRetry=(bool, ...),
+)
 
 auditor = LlmAgent(
     name="auditor",
@@ -67,7 +73,7 @@ Task Breakdown:
 
 Format: Your output must strictly adhere to the predefined AuditorSchema JSON format for routing.""",
     tools=[validate_preferences_tool],
-    output_schema=AuditorSchema
+    output_schema=AuditorSchema,
 )
 
 reporting = LlmAgent(
@@ -109,8 +115,9 @@ Example A2UI JSON Format:
   }
 ]
 Produce valid A2UI JSON arrays consisting ONLY of the standard types: `card`, `list`, `text_item`, `divider`, `list_item`. EVERY component object in your JSON array MUST explicitly possess a `"type"` string key! DO NOT invent other types.""",
-    tools=[generate_vibe_diff_tool]
+    tools=[generate_vibe_diff_tool],
 )
+
 
 def orchestrator_router(ctx: Context, node_input):
     """Routes execution based on whether the Orchestrator gathered all info."""
@@ -118,15 +125,16 @@ def orchestrator_router(ctx: Context, node_input):
         plan = ctx.state["search_plan"]
         ctx.actions.state_delta["search_plan"] = None
         return Event(output=json.dumps(plan), route="ready")
-    
-    # If not ready, we route to '__DEFAULT__' which won't match any edge, 
+
+    # If not ready, we route to '__DEFAULT__' which won't match any edge,
     # pausing execution naturally and returning control to human!
     return Event(output=node_input, route="human_input_required")
 
+
 def auditor_router(node_input):
     if not node_input:
-         # Failsafe if auditor returns nothing
-         return Event(output=None, route="approved")
+        # Failsafe if auditor returns nothing
+        return Event(output=None, route="approved")
     if hasattr(node_input, "model_dump"):
         node_input = node_input.model_dump()
     elif isinstance(node_input, str):
@@ -134,22 +142,26 @@ def auditor_router(node_input):
             node_input = json.loads(node_input)
         except Exception:
             node_input = {}
-            
+
     if isinstance(node_input, dict) and node_input.get("needsRetry"):
         return Event(output=json.dumps(node_input), route="retry")
     uri = node_input.get("approvedDataURI") if isinstance(node_input, dict) else None
-    return Event(output=f'The auditor has approved the travel data. Here is the approvedDataURI: {uri}', route="approved")
+    return Event(
+        output=f"The auditor has approved the travel data. Here is the approvedDataURI: {uri}",
+        route="approved",
+    )
+
 
 root_agent = Workflow(
     name="travel_planner",
     edges=[
-        ('START', orchestrator),
+        ("START", orchestrator),
         (orchestrator, orchestrator_router),
         (orchestrator_router, {"ready": querying}),
         (querying, auditor),
         (auditor, auditor_router),
-        (auditor_router, {"retry": querying, "approved": reporting})
-    ]
+        (auditor_router, {"retry": querying, "approved": reporting}),
+    ],
 )
 
 app = App(

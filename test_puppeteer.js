@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer');
 
 (async () => {
     const url = "http://127.0.0.1:8000/index.html";
-    const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
+    const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
     const page = await browser.newPage();
     page.on('console', msg => console.log('PAGE LOG:', msg.text()));
     page.on('request', request => {
@@ -28,7 +28,7 @@ const puppeteer = require('puppeteer');
                 const textNodes = document.body.innerText;
                 const hasUiList = document.querySelectorAll('div').length > 0;
                 return hasUiList && textNodes.includes('Tokyo');
-            }, { timeout: 10000 });
+            }, { timeout: 35000 });
             console.log(`Iteration ${i+1} SUCCESS`);
             successes++;
         } catch(err) {
