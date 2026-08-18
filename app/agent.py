@@ -1,4 +1,3 @@
-import app.app_utils.services
 import json
 from google.adk.agents import LlmAgent
 from google.adk.agents.context import Context
@@ -11,8 +10,7 @@ from .tools import (
     search_public_travel_tool,
     validate_preferences_tool,
     generate_vibe_diff_tool,
-    submit_search_plan_tool,
-    UserProfile
+    submit_search_plan_tool
 )
 
 import datetime

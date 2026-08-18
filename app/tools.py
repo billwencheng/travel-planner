@@ -1,12 +1,5 @@
 from pydantic import BaseModel
 from google.adk.tools import ToolContext
-from google.adk.tools import BaseTool
-
-class UserProfile(BaseModel):
-    name: str = "Anonymous"
-    budget: int = 1000
-    preferred_hotel_stars: int = 4
-    layover_limits: int = 1
 
 class ValidationReport(BaseModel):
     isAligned: bool
