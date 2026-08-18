@@ -19,12 +19,7 @@ class HotelDetail(BaseModel):
     stars: int
     deepLink: str
 
-class VibeDiff(BaseModel):
-    plainTextSummary: str
-    estimatedCost: float
-    flights: list[FlightDetail]
-    hotels: list[HotelDetail]
-    deepLinks: list[str]
+
 
 async def search_public_travel_tool(origin: str, destination: str, departure_date: str, return_date: str, tool_context: ToolContext) -> dict:
     """Executes public Google Search to scrape and return real-world flight/hotel data.
@@ -116,7 +111,7 @@ async def validate_preferences_tool(searchDataURI: str, budget: int, preferred_h
 
     return ValidationReport(isAligned=is_aligned, approvedDataURI=searchDataURI if is_aligned else "")
 
-async def generate_vibe_diff_tool(approvedDataURI: str, tool_context: ToolContext) -> VibeDiff:
+async def generate_vibe_diff_tool(approvedDataURI: str, tool_context: ToolContext) -> list[dict]:
     """Converts audited JSON into A2UI declarative payload standards.
     """
     import json
