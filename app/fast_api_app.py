@@ -76,6 +76,26 @@ app: FastAPI = get_fast_api_app(
 app.title = "travel-planner"
 app.description = "API for interacting with the Agent travel-planner"
 
+from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+from starlette.responses import Response
+
+class NoBufferMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        response: Response = await call_next(request)
+        response.headers["X-Accel-Buffering"] = "no"
+        response.headers["Cache-Control"] = "no-cache"
+        response.headers["Connection"] = "keep-alive"
+        return response
+
+app.add_middleware(NoBufferMiddleware)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.post("/feedback")
 def collect_feedback(feedback: Feedback) -> dict[str, str]:

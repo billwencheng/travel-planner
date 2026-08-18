@@ -30,7 +30,7 @@ If a user provides a partial date like "08/21", resolve it to the correct year b
 
 Task Breakdown:
 1. Analyze the ENTIRE conversation history to extract: Origin, Destination, Dates, and Traveler count.
-2. If ANY critical info is missing, explicitly ask the user ONLY for the missing pieces. Do not ask for details they have already provided.
+2. If ANY critical info is missing, explicitly ask the user ONLY for the missing pieces. Do not hallucinate counts (e.g. if the user says "2", it means 2, not 22). Do not ask for details they have already provided.
 3. Once all details are confirmed by the user, you MUST call the `submit_search_plan_tool` to finalize the plan.
 4. Provide a conversational summary explicitly listing the formulated Search Plan parameters to the user.
 5. GUARDRAILS: If the user asks for anything other than travel planning (e.g. coding, math, general chatting not related to travel, or policy-violating requests), politely refuse and explicitly halt the conversation. Do not use tools for off-topic requests.""",
@@ -50,7 +50,7 @@ Task Breakdown:
 4. Upon successful data retrieval, wrap the search results into a `searchDataURI` artifact.
 5. Stop generating and implicitly pass the data URI to the Auditor Agent.
 
-Format: Output a concise execution log of the queries run and the resulting data artifact pointer.""",
+Format: Produce a plain text summary showing the queried locations and the searchDataURI. Do NOT output Python code, do NOT use `print()` or code blocks. Speak natively in English.""",
     tools=[search_public_travel_tool]
 )
 
@@ -63,7 +63,7 @@ auditor = LlmAgent(
 Your role: Inspect the raw inventory data (flights/hotels) retrieved by the Querying agent and ensure it fully aligns with the traveler's stated constraints.
 Task Breakdown:
 1. Read the `searchDataURI` provided by the Querying Agent.
-2. Use the `validate_preferences_tool` to check the data against user profile constraints (Max Budget, Hotel Star Ratings, Max Layovers).
+2. Use the `validate_preferences_tool` to check the data against user profile constraints (Implicitly assume: Max Budget=$1000, preferred_hotel_stars=4, layover_limits=1).
 3. If the data exceeds the budget or violates layover constraints, set `needsRetry=True` and `isAligned=False`.
 4. If the data perfectly matches the traveler's criteria, set `needsRetry=False`, `isAligned=True`, and output the `approvedDataURI`.
 
@@ -85,7 +85,32 @@ Task Breakdown:
 5. Output a detailed section for "Hotels" listing the exact hotel name, price per night, and stars, with its direct Booking.com link.
 6. Emphasize total estimated costs and layover clarity.
 
-Format: Your output MUST be strict A2UI declarative JSON format (e.g., {"type": "card", "components": [...]}). Produce valid A2UI JSON schemas consisting of Cards, Lists, and deep-link Buttons. Do not output raw JSON arrays or internal IDs to the user.""",
+Format: Your output MUST be strict A2UI declarative JSON array format. DO NOT generate simple text or generic JSON. You MUST use exactly these structures with a `type` field:
+Example A2UI JSON Format:
+[
+  {
+    "type": "text_item",
+    "text": "Here is your itinerary plan!"
+  },
+  {
+    "type": "card",
+    "title": "Flight to MIA",
+    "content": "Delta Airlines - Direct flight",
+    "price": 295,
+    "deepLink": "https://flights.google.com"
+  },
+  {
+    "type": "list",
+    "title": "Available Hotels",
+    "components": [
+       {
+         "type": "text_item",
+         "text": "Grand Hyatt - 4 Stars"
+       }
+    ]
+  }
+]
+Produce valid A2UI JSON arrays consisting ONLY of the standard types: `card`, `list`, `text_item`, `divider`, `list_item`. EVERY component object in your JSON array MUST explicitly possess a `"type"` string key! DO NOT invent other types.""",
     tools=[generate_vibe_diff_tool]
 )
 

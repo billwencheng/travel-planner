@@ -84,7 +84,7 @@ async def search_public_travel_tool(origin: str, destination: str, departure_dat
     uri = f"artifact://{filename}"
     return {"status": "success", "searchDataURI": uri}
 
-async def validate_preferences_tool(searchDataURI: str, preferences: UserProfile, tool_context: ToolContext) -> ValidationReport:
+async def validate_preferences_tool(searchDataURI: str, budget: int, preferred_hotel_stars: int, layover_limits: int, tool_context: ToolContext) -> ValidationReport:
     """Inspects the raw public search results to ensure they align with the personal traveler's stated preferences.
     """
     import json
@@ -104,16 +104,16 @@ async def validate_preferences_tool(searchDataURI: str, preferences: UserProfile
             for index, flight in enumerate(flights):
                 if index == 0:
                     cost += float(flight.get("price", 0))
-                if int(flight.get("layovers", 0)) > preferences.layover_limits:
+                if int(flight.get("layovers", 0)) > layover_limits:
                     is_aligned = False
 
             for index, hotel in enumerate(hotels):
                 if index == 0:
                     cost += float(hotel.get("price_per_night", 0)) * 5  # Assume 5 nights based on generate_vibe_diff_tool
-                if int(hotel.get("stars", 0)) < preferences.preferred_hotel_stars:
+                if int(hotel.get("stars", 0)) < preferred_hotel_stars:
                     is_aligned = False
                     
-            if cost > preferences.budget:
+            if cost > budget:
                 is_aligned = False
 
         except Exception:

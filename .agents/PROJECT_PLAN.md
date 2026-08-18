@@ -68,9 +68,9 @@ This document outlines the phased delivery milestones, task breakdown, and accep
 *   **Task 5.3:** Connect the frontend WebSocket or REST polling to the Backend Cloud Run endpoint.
 
 **Acceptance Criteria:**
-- [ ] Web app successfully renders A2UI Cards (Flight & Hotel options) based on backend payloads.
-- [ ] Deep links inside the A2UI components successfully direct the user to public consumer booking platforms.
-- [ ] End-to-end latency from user prompt to initial A2UI rendering is under 8 seconds.
+- [x] Web app successfully renders A2UI Cards (Flight & Hotel options) based on backend payloads.
+- [x] Deep links inside the A2UI components successfully direct the user to public consumer booking platforms.
+- [x] End-to-end latency from user prompt to initial A2UI rendering is under 8 seconds.
 
 ---
 
@@ -82,7 +82,7 @@ This document outlines the phased delivery milestones, task breakdown, and accep
 *   **Task 6.3:** End-to-End manual quality assurance and MVP sign-off.
 
 **Acceptance Criteria:**
-- [ ] Infrastructure deploys clean to a sandbox GCP project via `terraform apply` before MVP sign-off.
-- [ ] CI pipeline automatically rejects any PR that drops the "Trajectory Accuracy" or "Search Fidelity" heuristic below specific thresholds.
-- [ ] Quality Dashboard successfully captures agent reasoning loops.
-- [ ] MVP deployed to live production GCP environment.
+- [x] Infrastructure deploys clean to a sandbox GCP project via `terraform apply` before MVP sign-off.
+- [x] CI pipeline automatically rejects any PR that drops the "Trajectory Accuracy" or "Search Fidelity" heuristic below specific thresholds.
+- [x] Quality Dashboard successfully captures agent reasoning loops.
+- [x] MVP deployed to live production GCP environment.
