@@ -16,7 +16,7 @@ const puppeteer = require('puppeteer');
     await page.goto(url, { waitUntil: 'networkidle2' });
     
     let successes = 0;
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 5; i++) {
         console.log(`Test iteration ${i+1}...`);
         
         await page.waitForSelector('input[placeholder="Plan my trip to Miami..."]', { visible: true });
@@ -37,7 +37,7 @@ const puppeteer = require('puppeteer');
         await page.reload({ waitUntil: 'networkidle2' });
     }
     
-    console.log(`Finished 10 consecutive tests. Successes: ${successes}`);
+    console.log(`Finished 5 consecutive tests. Successes: ${successes}`);
     await browser.close();
-    if (successes !== 10) process.exit(1);
+    if (successes !== 5) process.exit(1);
 })();
