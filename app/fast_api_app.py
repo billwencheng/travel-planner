@@ -15,6 +15,7 @@
 import contextlib
 import os
 from collections.abc import AsyncIterator
+from typing import Any
 
 import google.auth
 from a2a.server.tasks import InMemoryTaskStore
@@ -31,7 +32,8 @@ from starlette.responses import Response
 
 from app.app_utils import services
 from app.app_utils.a2a import attach_a2a_routes
-from app.app_utils.telemetry import setup_telemetry
+from app.app_utils.memory import consolidate_user_memory_async, get_user_memory
+from app.app_utils.telemetry import redact_pii, setup_telemetry
 from app.app_utils.typing import Feedback
 
 load_dotenv()
@@ -113,7 +115,7 @@ app.add_middleware(
 
 @app.post("/feedback")
 def collect_feedback(feedback: Feedback) -> dict[str, str]:
-    """Collect and log feedback.
+    """Collect and log feedback with automated PII redaction.
 
     Args:
         feedback: The feedback data to log
@@ -121,8 +123,25 @@ def collect_feedback(feedback: Feedback) -> dict[str, str]:
     Returns:
         Success message
     """
-    logger.log_struct(feedback.model_dump(), severity="INFO")
+    redacted_feedback = redact_pii(feedback.model_dump())
+    logger.log_struct(redacted_feedback, severity="INFO")
     return {"status": "success"}
+
+
+@app.get("/api/user/{user_id}/memory")
+def fetch_user_memory(user_id: str) -> dict[str, Any]:
+    """Retrieve long-term traveler preferences from Memory Bank."""
+    return get_user_memory(user_id)
+
+
+@app.post("/api/user/{user_id}/memory/consolidate")
+async def trigger_memory_consolidation(
+    user_id: str, payload: dict[str, Any]
+) -> dict[str, Any]:
+    """Trigger asynchronous background memory consolidation for a user session."""
+    session_text = payload.get("text", "")
+    updated_profile = await consolidate_user_memory_async(user_id, session_text)
+    return {"status": "success", "profile": updated_profile}
 
 
 frontend_dir = os.path.join(
